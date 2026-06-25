@@ -76,9 +76,9 @@ def main():
         while content:
             null_index = content.index(b"\x00")
 
-            mode_and_filenamename = content[:null_index]
+            mode_and_filename = content[:null_index]
 
-            filename = mode_and_filenamename.split(" ", 1)[1].decode()
+            filename = mode_and_filename.split(b" ", 1)[1].decode()
 
             content = content[null_index + 1:] # move to the sha which is after the null_index
 
