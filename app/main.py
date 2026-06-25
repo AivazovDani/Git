@@ -62,13 +62,14 @@ def main():
     elif command == 'ls-tree':
         shahash = sys.argv[3]
 
-        path = os.path.join('.git', 'objects', shahash[2:], shahash[2:])
-
+        path = os.path.join('.git', 'objects', shahash[:2], shahash[2:])
 
         with open(path, 'rb') as f:
             content = f.read()
 
         content = zlib.decompress(content)
+
+        content = content.split(b"\x00", 1)[1] # strip the tree header | tree 123\x00100644 file.txt\x00<20 bytes>100644 readme.md\x00<20 bytes>
 
         entries = []
 
@@ -77,9 +78,9 @@ def main():
 
             mode_and_filenamename = content[:null_index]
 
-            filename = mode_and_filenamename.split(" ", 1)[1]
+            filename = mode_and_filenamename.split(" ", 1)[1].decode()
 
-            content = content[null_index + 1] # move to the sha which is after the null_index
+            content = content[null_index + 1:] # move to the sha which is after the null_index
 
             sha = content[:20] # the sha is 20 bytes
 
