@@ -27,7 +27,7 @@ def main():
 
         content = content.split(b"\x00")[1].decode() # splitting by the bull bytes seprator, then deocding it to give us the text
 
-        print(content)
+        print(content, end="")
 
         
 
