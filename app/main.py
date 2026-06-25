@@ -50,7 +50,7 @@ def main():
 
         dir_path = os.path.join('.git', 'objects', shahash[:2]) # create the folder path only
 
-        if not os.path.exists(path): # check if the dir exists
+        if not os.path.exists(dir_path): # check if the dir exists
             os.mkdir(path) # create the full path
 
         with open(path, 'wb') as f: # write the blob to the file
