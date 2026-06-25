@@ -31,22 +31,22 @@ def main():
         print(content, end="") # by default print() adds a \n at the end
     
     elif command == 'hash-object':
-        filename = sys.argv[3]
+        filename = sys.argv[3] # get the filename | git hash-object -w file.txt
 
-        with open(filename, 'rb') as f:
+        with open(filename, 'rb') as f: # read the content of the file
             content = f.read()
         
         header = f"blob {len(content)}\0" # constructing the blob header
 
-        blob_object = header.encode() + content # combining the header and the content
+        blob_object = header.encode() + content # combining the header and the content | blob <size>\0<content>
 
-        shahash_object = hashlib.sha1(blob_object) # constructs the hash object with the data
+        shahash_object = hashlib.sha1(blob_object) # constructs the hash object with the blob
 
         shahash = shahash_object.hexdigest() # extracts the result as a 40 char hash
 
-        compressed_blob = zlib.compress(blob_object) # compressing the blob
+        compressed_blob = zlib.compress(blob_object) # compressing the blob into bytes
 
-        path = os.path.join('.git', "objects", shahash[:2], shahash[2:])
+        path = os.path.join('.git', "objects", shahash[:2], shahash[2:]) # the path we need
 
         dir_path = os.path.join('.git', 'objects', shahash[:2]) # create the folder path only
 
@@ -57,6 +57,38 @@ def main():
             f.write(compressed_blob)
 
         print(shahash)
+
+
+    elif command == 'ls-tree':
+        shahash = sys.argv[3]
+
+        path = os.path.join('.git', 'objects', shahash[2:], shahash[2:])
+
+
+        with open(path, 'rb') as f:
+            content = f.read()
+
+        content = zlib.decompress(content)
+
+        entries = []
+
+        while content:
+            null_index = content.index(b"\x00")
+
+            mode_and_filenamename = content[:null_index]
+
+            filename = mode_and_filenamename.split(" ", 1)[1]
+
+            content = content[null_index + 1] # move to the sha which is after the null_index
+
+            sha = content[:20] # the sha is 20 bytes
+
+            content = content[20:] # get to the next mode and filename
+
+            entries.append(filename)
+
+        for entry in entries:
+            print(entry)
 
 
     else:
