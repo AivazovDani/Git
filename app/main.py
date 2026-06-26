@@ -7,56 +7,57 @@ import hashlib
 
 def write_tree(path):
 
-    entries = []
+    entries = [] # storing each file and dir entry individually in the format | <mode> <name>\x00<20 binary bytes SHA>
 
-    for item in sorted(os.listdir(path)):
+    for item in sorted(os.listdir(path)): # sorting alphabetically each directory in the current path | "." => pyhton/git/codecrafters
 
-        if item == ".git":
+        if item == ".git": # ignore git's internal directory and track only my actual project files
             continue
 
-        full_path = os.path.join(path, item)
+        full_path = os.path.join(path, item) # pyhton/git/codecrafters/file.txt / pyhton/git/codecrafters/src
 
-        if os.path.isfile(full_path):
+        if os.path.isfile(full_path): # if the full path is file
 
             with open(full_path, 'rb') as f:
-                content = f.read()
+                content = f.read() # read the content into byte object
 
-                header = f"blob {len(content)}\0"
+                header = f"blob {len(content)}\0" # create the blob header
 
-                blob_object = header.encode() + content
+                blob_object = header.encode() + content # create the blob byte object
                 
-                shahash_object = hashlib.sha1(blob_object)
+                shahash_object = hashlib.sha1(blob_object) # create the sha hash the blob object
 
-                shahash = shahash_object.digest()
+                shahash = shahash_object.digest() # make it 20 bytes | summerizing
 
-                entry = f"100644 {item}\x00".encode() + shahash
+                entry = f"100644 {item}\x00".encode() + shahash # create the tree object | <mode> <name>\x00<20 binary bytes SHA>
 
 
                 entries.append(entry)
 
-        elif os.path.isdir(full_path):
-            sub_sha = write_tree(full_path)
+        elif os.path.isdir(full_path): # if the full path is a subdirectory (directory in a directory)
+            sub_sha = write_tree(full_path) # calling the subdirecotry recursivly so i can get the hash for the child tree before writing the parent tree to the storage
             entry = f"40000 {item}\x00".encode() + bytes.fromhex(sub_sha)
             entries.append(entry)
 
-    tree_data = b"".join(entries)
+    tree_data = b"".join(entries) # combines all the tree data from my list into bytes | bytes only
 
-    header = f'tree {len(tree_data)}\x00'.encode()
+    header = f'tree {len(tree_data)}\x00'.encode() # creates the tree header with the lenght of the tree data | bytes only
     
-    full_tree = header + tree_data
+    full_tree = header + tree_data # creating the full tree structure
 
-    h = hashlib.sha1(full_tree)
-    sha_hash = h.hexdigest()
+    h = hashlib.sha1(full_tree) # hashing the full tree
+    sha_hash = h.hexdigest() # summerizing the full tree into 40 bytes
 
-    path = os.path.join('.git', "objects", sha_hash[:2], sha_hash[2:])
+    path = os.path.join('.git', "objects", sha_hash[:2], sha_hash[2:]) # creating the path for my git object directory storage
 
-    dir_path = os.path.join('.git', 'objects', sha_hash[:2])
+    dir_path = os.path.join('.git', 'objects', sha_hash[:2]) # creating the folder for the git object directory storage
 
-    if not os.path.exists(dir_path):
+    if not os.path.exists(dir_path): # checking if the folder exists
         os.mkdir(dir_path)
 
-    with open(path, 'wb') as f:
+    with open(path, 'wb') as f: # writing the tree to the storage
         f.write(zlib.compress(full_tree))
+
 
     return sha_hash
 
@@ -152,6 +153,45 @@ def main():
     elif command == 'write-tree':
         sha = write_tree(".")
         print(sha)
+
+    elif command == 'commit-tree':
+        content = f"tree {sys.argv[2]}\n"
+
+        if sys.argv[3] == '-p':
+            content += f"parent {sys.argv[4]}\n"
+            content += f"author John Doe <john@example.com> 1234567890 +0000\n"
+            content += f"committer John Doe <john@example.com> 1234567890 +0000\n"
+            content += f"\n"
+            content += sys.argv[6]
+
+        else:
+            content += f"author John Doe <john@example.com> 1234567890 +0000\n"
+            content += f"committer John Doe <john@example.com> 1234567890 +0000\n"
+            content += f"\n"
+            content += sys.argv[4]
+        
+
+        byte_content = content.encode()
+
+        header = f"commit {len(byte_content)}\x00".encode()
+
+        full_commit = header + byte_content
+
+        shahash_object = hashlib.sha1(full_commit)
+
+        shahash = shahash_object.hexdigest()
+
+        path = os.path.join('.git', 'objects', shahash[:2], shahash[2:])
+
+        dir_path = os.path.join('.git', 'objects', shahash[:2])
+
+        if not os.path.exists(dir_path):
+            os.mkdir(dir_path)
+
+        with open(path, 'wb') as f:
+            f.write(zlib.compress(full_commit))
+
+        print(shahash)
 
 
     else:
