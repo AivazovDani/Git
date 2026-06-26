@@ -36,7 +36,7 @@ def write_tree(path):
 
         elif os.path.isdir(full_path):
             sub_sha = write_tree(full_path)
-            entry = f"040000 {item}\x00".encode() + bytes.fromhex(sub_sha)
+            entry = f"40000 {item}\x00".encode() + bytes.fromhex(sub_sha)
             entries.append(entry)
 
         tree_data = b"".join(entries)
