@@ -39,26 +39,26 @@ def write_tree(path):
             entry = f"40000 {item}\x00".encode() + bytes.fromhex(sub_sha)
             entries.append(entry)
 
-        tree_data = b"".join(entries)
+    tree_data = b"".join(entries)
 
-        header = f'tree {len(tree_data)}\x00'.encode()
-        
-        full_tree = header + tree_data
+    header = f'tree {len(tree_data)}\x00'.encode()
+    
+    full_tree = header + tree_data
 
-        h = hashlib.sha1(full_tree)
-        sha_hash = h.hexdigest()
+    h = hashlib.sha1(full_tree)
+    sha_hash = h.hexdigest()
 
-        path = os.path.join('.git', "objects", sha_hash[:2], sha_hash[2:])
+    path = os.path.join('.git', "objects", sha_hash[:2], sha_hash[2:])
 
-        dir_path = os.path.join('.git', 'objects', sha_hash[:2])
+    dir_path = os.path.join('.git', 'objects', sha_hash[:2])
 
-        if not os.path.exists(dir_path):
-            os.mkdir(dir_path)
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)
 
-        with open(path, 'wb') as f:
-            f.write(zlib.compress(full_tree))
+    with open(path, 'wb') as f:
+        f.write(zlib.compress(full_tree))
 
-        return sha_hash
+    return sha_hash
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
