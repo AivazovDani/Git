@@ -162,13 +162,13 @@ def main():
             content += f"author John Doe <john@example.com> 1234567890 +0000\n"
             content += f"committer John Doe <john@example.com> 1234567890 +0000\n"
             content += f"\n"
-            content += sys.argv[6]
+            content += f'{sys.argv[6]}\n'
 
         else:
             content += f"author John Doe <john@example.com> 1234567890 +0000\n"
             content += f"committer John Doe <john@example.com> 1234567890 +0000\n"
             content += f"\n"
-            content += sys.argv[4]
+            content += f'{sys.argv[4]}\n'
         
 
         byte_content = content.encode()
