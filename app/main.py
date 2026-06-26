@@ -149,7 +149,7 @@ def main():
             print(entry)
 
 
-    elif command = 'write-tree':
+    elif command == 'write-tree':
         sha = write_tree(".")
         print(sha)
 
