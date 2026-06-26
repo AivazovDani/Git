@@ -48,7 +48,7 @@ def write_tree(path):
         h = hashlib.sha1(full_tree)
         sha_hash = h.hexdigest()
 
-        path = os.path.join('.git', "objects", shahash[:2], shahash[2:])
+        path = os.path.join('.git', "objects", sha_hash[:2], sha_hash[2:])
 
         dir_path = os.path.join('.git', 'objects', sha_hash[:2])
 
