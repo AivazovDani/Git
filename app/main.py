@@ -19,7 +19,7 @@ def write_tree(path):
         if os.path.isfile(full_path):
 
             with open(item, 'rb') as f:
-                    content = f.read()
+                content = f.read()
 
                 header = f"blob {len(content)}\0"
 
